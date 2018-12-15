@@ -1,12 +1,18 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <cstdlib>
+#include <ctime>
 #include <vector>
+#include <cmath>
+#include "./boid.h"
 
-using BoidList = std::vector<sf::Vector2f>;
+
+using BoidList = std::vector<Boid>;
 
 const int WIDTH  = 1280;
 const int HEIGHT = 720;
+const int BOID_COUNT = 100;
+const int PERC_RAD = 100;
 
 sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Flocking");
 sf::CircleShape shape(10.0f);
@@ -16,8 +22,7 @@ void renderBoids();
 void initBoids();
 
 int main() {
-  std::cout << "Hello, world!" << std::endl;
-
+  srand(time(NULL));
   initBoids();
 
   while(window.isOpen())
@@ -27,6 +32,10 @@ int main() {
     {
       if (event.type == sf::Event::Closed)
         window.close();
+    }
+
+    for(Boid& boid: boids) {
+      boid.pos += boid.vel;
     }
 
     window.clear();
@@ -39,18 +48,20 @@ int main() {
 
 void initBoids()
 {
-  for(int i = 0; i < 10; i++) {
-    sf::Vector2f pos;
-    pos.x = rand() % WIDTH;
-    pos.y = rand() % HEIGHT;
-    boids.push_back(pos);
+  for(int i = 0; i < BOID_COUNT; i++) {
+    Boid boid;
+    boid.vel.x = (rand() % 4 - 2) / (float)10;
+    boid.vel.y = (rand() % 4 - 2) / (float)10;
+    boid.pos.x = rand() % WIDTH;
+    boid.pos.y = rand() % HEIGHT;
+    boids.push_back(boid);
   }
 }
 
 void renderBoids()
 {
-  for(sf::Vector2f pos: boids) {
-    shape.setPosition(pos);
+  for(Boid& boid: boids) {
+    shape.setPosition(boid.pos);
     window.draw(shape);
   }
 }
