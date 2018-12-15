@@ -20,6 +20,7 @@ BoidList boids;
 
 void renderBoids();
 void initBoids();
+void wrap();
 
 int main() {
   srand(time(NULL));
@@ -63,6 +64,17 @@ void renderBoids()
   for(Boid& boid: boids) {
     shape.setPosition(boid.pos);
     window.draw(shape);
+  }
+}
+
+void wrap()
+{
+  for(Boid& boid: boids) {
+    if (boid.pos.x >= WIDTH) boid.pos.x -= WIDTH;
+    else if (boid.pos.x < 0) boid.pos.x += WIDTH;
+
+    if (boid.pos.y >= HEIGHT) boid.pos.y -= HEIGHT;
+    else if (boid.pos.y < 0) boid.pos.y += HEIGHT;
   }
 }
 
