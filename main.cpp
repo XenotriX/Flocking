@@ -10,11 +10,16 @@
 
 using BoidList = std::vector<Boid>;
 
+const float ALIGNMENT_FACTOR  = 0.75;
+const float SEPARATION_FACTOR = 0.5;
+const float COHESION_FACTOR   = 0;
+const int PERC_RAD            = 100;
+const float MAX_VEL           = 0.5f;
+const float MAX_FORCE         = 0.0005f;
+const int BOID_COUNT          = 100;
+
 const int WIDTH  = 1280;
 const int HEIGHT = 720;
-const int BOID_COUNT = 100;
-const int PERC_RAD = 50;
-const float MAX_VEL = 0.2f;
 
 sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Flocking");
 sf::CircleShape shape(10.0f);
@@ -24,11 +29,14 @@ BoidList boids;
 
 BoidList getNeighbors(const Boid& boid);
 void align();
+void separate();
+void cohesion();
 void renderBoids();
 void initBoids();
 void wrap();
 void setMagnitude(sf::Vector2f&, float);
 float magnitude(const sf::Vector2f&);
+void limit(sf::Vector2f&, float);
 
 int main() {
   shape.setOrigin(sf::Vector2f(10.0f, 10.0f));
@@ -48,11 +56,12 @@ int main() {
     }
 
     align();
+    separate();
+    cohesion();
 
     for(Boid& boid: boids) {
       boid.vel += boid.acc;
-      if (magnitude(boid.vel) > MAX_VEL)
-        setMagnitude(boid.vel, MAX_VEL);
+      limit(boid.vel, MAX_VEL);
       boid.pos += boid.vel;
     }
 
@@ -72,8 +81,6 @@ void initBoids()
     Boid boid;
     boid.acc.x = rand() / (float)RAND_MAX - 0.5;
     boid.acc.y = rand() / (float)RAND_MAX - 0.5;
-    boid.acc.x *= -1;
-    boid.acc.y *= -1;
     boid.pos.x = rand() % WIDTH;
     boid.pos.y = rand() % HEIGHT;
     boids.push_back(boid);
@@ -114,10 +121,55 @@ void align()
     }
     sf::Vector2f avg(sum.x / (float)neighbors.size(), sum.y / (float)neighbors.size());
     sf::Vector2f steer = avg - boid.vel;
+    limit(steer, MAX_FORCE);
+    steer *= ALIGNMENT_FACTOR;
     boid.acc += steer;
   }
 }
 
+void separate()
+{
+  for(Boid& boid: boids) {
+    BoidList neighbors = getNeighbors(boid);
+    if (neighbors.size() == 0) continue;
+    sf::Vector2f sum;
+    for (const Boid& other: neighbors) {
+      sf::Vector2f diff = boid.pos - other.pos;
+      float factor = pow(magnitude(diff), 2);
+      sum += sf::Vector2f(diff.x / factor, diff.y / factor);
+    }
+    sf::Vector2f avg(sum.x / (float)neighbors.size(), sum.y / (float)neighbors.size());
+    sf::Vector2f steer = avg - boid.vel;
+    limit(steer, MAX_FORCE);
+    steer *= SEPARATION_FACTOR;
+    boid.acc += steer;
+  }
+}
+
+void cohesion()
+{
+  for(Boid& boid: boids) {
+    BoidList neighbors = getNeighbors(boid);
+    if (neighbors.size() == 0) continue;
+    sf::Vector2f sum;
+    for (const Boid& other: neighbors) {
+      sum += other.pos;
+    }
+    sf::Vector2f avg(sum.x / (float)neighbors.size(), sum.y / (float)neighbors.size());
+    sf::Vector2f steer = avg - boid.pos;
+    steer -= boid.vel;
+    limit(steer, MAX_FORCE);
+    steer *= COHESION_FACTOR;
+    boid.acc += steer;
+  }
+}
+
+void limit(sf::Vector2f& vec, float max)
+{
+  if(magnitude(vec) > max) {
+    setMagnitude(vec, max);
+  }
+}
 
 BoidList getNeighbors(const Boid& boid) {
   BoidList list;
