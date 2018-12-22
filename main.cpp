@@ -6,6 +6,7 @@
 #include <cmath>
 #include <assert.h>
 #include "./boid.h"
+#include "./utils.h"
 
 
 using BoidList = std::vector<Boid>;
@@ -34,9 +35,6 @@ void cohesion();
 void renderBoids();
 void initBoids();
 void wrap();
-void setMagnitude(sf::Vector2f&, float);
-float magnitude(const sf::Vector2f&);
-void limit(sf::Vector2f&, float);
 
 int main() {
   shape.setOrigin(sf::Vector2f(10.0f, 10.0f));
@@ -101,13 +99,6 @@ void renderBoids()
   }
 }
 
-sf::Vector2f normalize(const sf::Vector2f& vec)
-{
-  sf::Vector2f normalized;
-  float mag = magnitude(vec);
-  normalized.x = vec.x / mag;
-  normalized.y = vec.y / mag;
-  return normalized;
 }
 
 void align()
@@ -164,13 +155,6 @@ void cohesion()
   }
 }
 
-void limit(sf::Vector2f& vec, float max)
-{
-  if(magnitude(vec) > max) {
-    setMagnitude(vec, max);
-  }
-}
-
 BoidList getNeighbors(const Boid& boid) {
   BoidList list;
   for (const Boid& other: boids) {
@@ -190,18 +174,5 @@ void wrap()
     if (boid.pos.y >= HEIGHT) boid.pos.y -= HEIGHT;
     else if (boid.pos.y < 0) boid.pos.y += HEIGHT;
   }
-}
-
-void setMagnitude(sf::Vector2f& vec, float mag)
-{
-  float currentMag = magnitude(vec);
-  float factor = mag / currentMag;
-  vec.x *= factor;
-  vec.y *= factor;
-}
-
-float magnitude(const sf::Vector2f& vec)
-{
-  return sqrt(pow(vec.x, 2) + pow(vec.y, 2));
 }
 
