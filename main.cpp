@@ -11,21 +11,19 @@
 
 using BoidList = std::vector<Boid>;
 
-const float ALIGNMENT_FACTOR  = 0.75;
-const float SEPARATION_FACTOR = 0.5;
-const float COHESION_FACTOR   = 0;
+const float ALIGNMENT_FACTOR  = 1;
+const float SEPARATION_FACTOR = 1;
+const float COHESION_FACTOR   = 0.5;
 const int PERC_RAD            = 100;
-const float MAX_VEL           = 0.5f;
-const float MAX_FORCE         = 0.0005f;
-const int BOID_COUNT          = 100;
+const float MAX_VEL           = 1;
+const float MAX_FORCE         = 0.001f;
+const int BOID_COUNT          = 200;
 
 const int WIDTH  = 1280;
 const int HEIGHT = 720;
 
 sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Flocking");
 sf::CircleShape shape(10.0f);
-sf::CircleShape neighbor(10.0f);
-sf::CircleShape perception(PERC_RAD);
 BoidList boids;
 
 BoidList getNeighbors(const Boid& boid);
@@ -38,10 +36,6 @@ void wrap();
 
 int main() {
   shape.setOrigin(sf::Vector2f(10.0f, 10.0f));
-  neighbor.setOrigin(sf::Vector2f(10.0f, 10.0f));
-  neighbor.setFillColor(sf::Color::Red);
-  perception.setOrigin(sf::Vector2f(PERC_RAD, PERC_RAD));
-  perception.setFillColor(sf::Color::Yellow);
   srand(time(NULL));
   initBoids();
 
@@ -58,6 +52,7 @@ int main() {
     cohesion();
 
     for(Boid& boid: boids) {
+      limit(boid.acc, MAX_FORCE);
       boid.vel += boid.acc;
       limit(boid.vel, MAX_VEL);
       boid.pos += boid.vel;
@@ -87,18 +82,10 @@ void initBoids()
 
 void renderBoids()
 {
-  perception.setPosition(boids[0].pos);
-  window.draw(perception);
   for(Boid& boid: boids) {
     shape.setPosition(boid.pos);
     window.draw(shape);
   }
-  for(Boid boid: getNeighbors(boids[0])) {
-    neighbor.setPosition(boid.pos);
-    window.draw(neighbor);
-  }
-}
-
 }
 
 void align()
@@ -112,7 +99,6 @@ void align()
     }
     sf::Vector2f avg(sum.x / (float)neighbors.size(), sum.y / (float)neighbors.size());
     sf::Vector2f steer = avg - boid.vel;
-    limit(steer, MAX_FORCE);
     steer *= ALIGNMENT_FACTOR;
     boid.acc += steer;
   }
@@ -131,7 +117,6 @@ void separate()
     }
     sf::Vector2f avg(sum.x / (float)neighbors.size(), sum.y / (float)neighbors.size());
     sf::Vector2f steer = avg - boid.vel;
-    limit(steer, MAX_FORCE);
     steer *= SEPARATION_FACTOR;
     boid.acc += steer;
   }
@@ -149,7 +134,6 @@ void cohesion()
     sf::Vector2f avg(sum.x / (float)neighbors.size(), sum.y / (float)neighbors.size());
     sf::Vector2f steer = avg - boid.pos;
     steer -= boid.vel;
-    limit(steer, MAX_FORCE);
     steer *= COHESION_FACTOR;
     boid.acc += steer;
   }
