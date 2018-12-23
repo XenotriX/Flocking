@@ -7,17 +7,9 @@
 #include <assert.h>
 #include "./boid.h"
 #include "./utils.h"
-
+#include "./params.h"
 
 using BoidList = std::vector<Boid>;
-
-const float ALIGNMENT_FACTOR  = 1;
-const float SEPARATION_FACTOR = 1;
-const float COHESION_FACTOR   = 0.5;
-const int PERC_RAD            = 100;
-const float MAX_VEL           = 1;
-const float MAX_FORCE         = 0.001f;
-const int BOID_COUNT          = 200;
 
 const int WIDTH  = 1280;
 const int HEIGHT = 720;
@@ -92,15 +84,7 @@ void align()
 {
   for(Boid& boid: boids) {
     BoidList neighbors = getNeighbors(boid);
-    if (neighbors.size() == 0) continue;
-    sf::Vector2f sum;
-    for (const Boid& other: neighbors) {
-      sum += other.vel;
-    }
-    sf::Vector2f avg(sum.x / (float)neighbors.size(), sum.y / (float)neighbors.size());
-    sf::Vector2f steer = avg - boid.vel;
-    steer *= ALIGNMENT_FACTOR;
-    boid.acc += steer;
+    boid.align(neighbors);
   }
 }
 
@@ -108,17 +92,7 @@ void separate()
 {
   for(Boid& boid: boids) {
     BoidList neighbors = getNeighbors(boid);
-    if (neighbors.size() == 0) continue;
-    sf::Vector2f sum;
-    for (const Boid& other: neighbors) {
-      sf::Vector2f diff = boid.pos - other.pos;
-      float factor = pow(magnitude(diff), 2);
-      sum += sf::Vector2f(diff.x / factor, diff.y / factor);
-    }
-    sf::Vector2f avg(sum.x / (float)neighbors.size(), sum.y / (float)neighbors.size());
-    sf::Vector2f steer = avg - boid.vel;
-    steer *= SEPARATION_FACTOR;
-    boid.acc += steer;
+    boid.separate(neighbors);
   }
 }
 
@@ -126,16 +100,7 @@ void cohesion()
 {
   for(Boid& boid: boids) {
     BoidList neighbors = getNeighbors(boid);
-    if (neighbors.size() == 0) continue;
-    sf::Vector2f sum;
-    for (const Boid& other: neighbors) {
-      sum += other.pos;
-    }
-    sf::Vector2f avg(sum.x / (float)neighbors.size(), sum.y / (float)neighbors.size());
-    sf::Vector2f steer = avg - boid.pos;
-    steer -= boid.vel;
-    steer *= COHESION_FACTOR;
-    boid.acc += steer;
+    boid.cohere(neighbors);
   }
 }
 
