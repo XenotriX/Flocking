@@ -1,15 +1,16 @@
 #include "./boid.h"
 
 #include <vector>
+#include "engine/utils.hpp"
 #include "params.h"
 
 using BoidList = std::vector<Boid>;
 
 Boid::Boid(int width, int height) {
-    _acc.x = rand() / (float)RAND_MAX - 0.5;
-    _acc.y = rand() / (float)RAND_MAX - 0.5;
-    _pos.x = rand() % width;
-    _pos.y = rand() % height;
+    _acc.x = Engine::rand() - 0.5;
+    _acc.y = Engine::rand() - 0.5;
+    _pos.x = Engine::rand() * width - width/2;
+    _pos.y = Engine::rand() * height - height/2;
 }
 
 sf::Vector2f Boid::pos() const
@@ -81,10 +82,10 @@ void Boid::move()
 
 void Boid::wrap(int width, int height)
 {
-  if (_pos.x >= width) _pos.x -= width;
-  else if (_pos.x < 0) _pos.x += width;
+  if (_pos.x >= width/2) _pos.x -= width;
+  else if (_pos.x < -width/2) _pos.x += width;
 
-  if (_pos.y >= height) _pos.y -= height;
-  else if (_pos.y < 0) _pos.y += height;
+  if (_pos.y >= height/2) _pos.y -= height;
+  else if (_pos.y < -height/2) _pos.y += height;
 }
 
