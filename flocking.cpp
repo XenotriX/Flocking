@@ -10,11 +10,14 @@
 #include "./utils.h"
 #include "./params.h"
 
+#define PI 3.14159265
+
 using BoidList = std::vector<Boid>;
 
 void Flocking::init()
 {
   shape.setOrigin(sf::Vector2f(10.0f, 10.0f));
+  shape.setPointCount(3);
   srand(time(NULL));
   for(int i = 0; i < BOID_COUNT; i++) {
     Boid boid(window->getSize().x, window->getSize().y);
@@ -38,6 +41,8 @@ void Flocking::render()
 {
   for(Boid& boid: boids) {
     shape.setPosition(boid.pos());
+    sf::Vector2f dir = normalize(boid.vel());
+    shape.setRotation(atan2(dir.y, dir.x) * 180 / PI + 30 + 180);
     window->draw(shape);
   }
 }

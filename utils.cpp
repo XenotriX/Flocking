@@ -22,3 +22,10 @@ void limit(sf::Vector2f& vec, float max)
     setMagnitude(vec, max);
   }
 }
+
+sf::Vector2f normalize(const sf::Vector2f& vec)
+{
+  float mag = magnitude(vec);
+  return sf::Vector2f(vec.x / mag, vec.y / mag);
+}
+
