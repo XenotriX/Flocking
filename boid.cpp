@@ -4,6 +4,8 @@
 #include "engine/utils.hpp"
 #include "params.h"
 
+#include <iostream>
+
 using BoidList = std::vector<Boid>;
 
 Boid::Boid(int width, int height) {
@@ -11,6 +13,7 @@ Boid::Boid(int width, int height) {
     _acc.y = Engine::rand() - 0.5;
     _pos.x = Engine::rand() * width - width/2;
     _pos.y = Engine::rand() * height - height/2;
+    std::cout << " at " << _pos.x << "/" << _pos.y << std::endl;
 }
 
 sf::Vector2f Boid::pos() const

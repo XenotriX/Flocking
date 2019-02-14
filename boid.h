@@ -12,7 +12,7 @@ private:
   sf::Vector2f _vel;
   sf::Vector2f _acc;
 public:
-  Boid(int, int);
+  Boid(int width, int height);
   sf::Vector2f pos() const;
   sf::Vector2f vel() const;
   sf::Vector2f acc() const;
