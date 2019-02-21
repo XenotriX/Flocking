@@ -21,4 +21,4 @@ This simulation follows the 3 simple rules Craig Reynolds defined in his [paper]
 
 ## License
 
-This Project is licensed under the MIT License. For more information see the [License](https://github.com/xenotrix1337/blob/master/LICENSE) file.
+This Project is licensed under the MIT License. For more information see the [License](https://github.com/xenotrix1337/flocking/blob/master/LICENSE) file.
